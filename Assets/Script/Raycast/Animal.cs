@@ -10,8 +10,11 @@ namespace Jungle
         [Header("Movement & Life")]
         [SerializeField] protected float moveSpeed = 10f;
         public bool HasReached { get; set; }
-        public bool IsMateFound { get; protected set; }
+        public bool IsMateFound { get; protected set; } = false;
+        public bool CanMove { get; set; } = true;
+
         public string Id { get; protected set; }
+        public string lastMateId { get; protected set; }
         public enum Gender { Male, Female };
         public Gender AnimalGender { get; private set; }
 
@@ -101,14 +104,25 @@ namespace Jungle
 
                 if (nearbyObject.gameObject != gameObject && nearbyObject.CompareTag(gameObject.tag)) // Ignore self and check tag
                 {
-                    if (nearbyObject.GetComponent<Animal>().AnimalGender != AnimalGender && !IsMateFound)
+                    if (nearbyObject.TryGetComponent<Animal>(out Animal nearAnimal))
                     {
-                        Debug.Log("Nearby object Clone: " + nearbyObject.name);
-                        OnMateEvent.Invoke(IsMateFound);
-                        IsMateFound = true;
+                        if (nearAnimal.AnimalGender != AnimalGender && !IsMateFound)
+                        {
+                            if (lastMateId != nearAnimal.Id)
+                            {
+                                Debug.Log("Nearby object Clone: " + nearbyObject.name);
+                                if (!IsMateFound)
+                                {
+                                    lastMateId = nearAnimal.Id;
+                                    StartCoroutine(FollowTime(nearbyObject.gameObject));
+                                    IsMateFound = true;
+                                }
 
-                        StartCoroutine(FollowTime(nearbyObject.gameObject));
+                            }
+                        }
                     }
+
+
                 }
 
             }
@@ -116,30 +130,44 @@ namespace Jungle
 
         public IEnumerator FollowTime(GameObject obj)
         {
-            obj.GetComponent<BoxCollider2D>().enabled = false;
+            var currentAnimal = GetComponent<Animal>();
+            var targetAnimal = obj.GetComponent<Animal>();
+
+            if (currentAnimal != null) currentAnimal.CanMove = false;
+            if (targetAnimal != null) targetAnimal.CanMove = false;
+
+            ManageCollider(obj, false);
 
             float journeyLength = Vector2.Distance(transform.position, obj.transform.position);
             float startTime = Time.time;
 
+            // Move towards the other object until close enough
             while (Vector2.Distance(transform.position, obj.transform.position) > 0.1f)
             {
                 float distCovered = (Time.time - startTime) * moveSpeed;
                 float fractionOfJourney = distCovered / journeyLength;
 
                 transform.position = Vector2.Lerp(transform.position, obj.transform.position, fractionOfJourney);
+                yield return null;
             }
-            yield return new WaitForSeconds(2f); 
+
+            yield return new WaitForSeconds(2f);
 
             OnMateEvent.Invoke(IsMateFound);
             IsMateFound = false;
 
+            if (currentAnimal != null) currentAnimal.CanMove = true;
+            if (targetAnimal != null) targetAnimal.CanMove = true;
+
             StartCoroutine(FindRandomPos());
+            ManageCollider(obj, true);
         }
 
 
-        public GameObject GetFood(GameObject obj)
+        public void ManageCollider(GameObject obj, bool status)
         {
-            return obj;
+            obj.GetComponent<BoxCollider2D>().enabled = status;
+            GetComponent<BoxCollider2D>().enabled = status;
         }
 
 

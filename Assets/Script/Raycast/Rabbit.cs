@@ -35,7 +35,7 @@ namespace Jungle
 
             PlayerDeadEffect(lifeCycle);
 
-            if (move != null && !IsMateFound)
+            if (move != null && !IsMateFound && CanMove)
             {
                 move.MovePlayer(transform, this);
             }
