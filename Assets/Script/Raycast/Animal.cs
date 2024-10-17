@@ -9,6 +9,7 @@ namespace Jungle
     {
         [Header("Movement & Life")]
         [SerializeField] protected float moveSpeed = 10f;
+        public float nextMatchInterval { get; private set; } = 5f;
         public bool HasReached { get; set; }
         public bool IsMateFound { get; protected set; } = false;
         public bool CanMove { get; set; } = true;
@@ -40,6 +41,7 @@ namespace Jungle
 
         public void Initialize()
         {
+            nextMatchInterval += Time.time;
             Id = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
             AssignGender();
         }
@@ -102,30 +104,49 @@ namespace Jungle
                     }
                 }
 
-                if (nearbyObject.gameObject != gameObject && nearbyObject.CompareTag(gameObject.tag)) // Ignore self and check tag
+                //if (nearbyObject.gameObject != gameObject && nearbyObject.CompareTag(gameObject.tag)) // Ignore self and check tag
+                //{
+                //    if (nearbyObject.TryGetComponent<Animal>(out Animal nearAnimal))
+                //    {
+                //        if (nearAnimal.AnimalGender != AnimalGender && !IsMateFound)
+                //        {
+                //            if (lastMateId != nearAnimal.Id && nearAnimal.gameObject != null)
+                //            {
+                //                Debug.Log("Nearby object Clone: " + nearbyObject.name);
+                //                if (!IsMateFound && nextMatchInterval > Time.time && nearAnimal.nextMatchInterval > Time.time)
+                //                {
+                //                    lastMateId = nearAnimal.Id;
+                //                    StartCoroutine(FollowTime(nearbyObject.gameObject));
+                //                    IsMateFound = true;
+                //                }
+
+                //            }
+                //        }
+                //    }
+
+
+                //}
+
+                if (nearbyObject.gameObject != gameObject && nearbyObject.CompareTag(gameObject.tag))
                 {
-                    if (nearbyObject.TryGetComponent<Animal>(out Animal nearAnimal))
+                    if (nearbyObject.TryGetComponent<Animal>(out Animal nearAnimal) && IsEligibleForMatching(nearAnimal))
                     {
-                        if (nearAnimal.AnimalGender != AnimalGender && !IsMateFound)
-                        {
-                            if (lastMateId != nearAnimal.Id)
-                            {
-                                Debug.Log("Nearby object Clone: " + nearbyObject.name);
-                                if (!IsMateFound)
-                                {
-                                    lastMateId = nearAnimal.Id;
-                                    StartCoroutine(FollowTime(nearbyObject.gameObject));
-                                    IsMateFound = true;
-                                }
-
-                            }
-                        }
+                        Debug.Log("Nearby object Clone: " + nearbyObject.name);
+                        lastMateId = nearAnimal.Id;
+                        StartCoroutine(FollowTime(nearbyObject.gameObject));
+                        IsMateFound = true;
                     }
-
-
                 }
-
             }
+        }
+
+        private bool IsEligibleForMatching(Animal nearAnimal)
+        {
+            return nearAnimal.AnimalGender != AnimalGender &&
+                   lastMateId != nearAnimal.Id &&
+                   nextMatchInterval < Time.time &&
+                   nearAnimal.nextMatchInterval < Time.time &&
+                   !IsMateFound;
         }
 
         public IEnumerator FollowTime(GameObject obj)
@@ -168,6 +189,11 @@ namespace Jungle
         {
             obj.GetComponent<BoxCollider2D>().enabled = status;
             GetComponent<BoxCollider2D>().enabled = status;
+            if (status)
+            {
+                obj.GetComponent<Animal>().nextMatchInterval = Time.time + 5f;
+                gameObject.GetComponent<Animal>().nextMatchInterval = Time.time + 5f;
+            }
         }
 
 

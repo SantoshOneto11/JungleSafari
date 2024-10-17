@@ -10,7 +10,7 @@ namespace Jungle
         public float foodEnergy = 10f;
 
         private IMove move;
-        private void Start()
+        private void Awake()
         {
             Initialize(); // Call to set up ID and status
             lifeCycle += Time.time;
@@ -21,6 +21,7 @@ namespace Jungle
             // Listeners to Events
             OnAnimalReachingFood.AddListener(ManageFood);
             OnMateEvent.AddListener(ManageCollider);
+
         }
 
         private void Update()
