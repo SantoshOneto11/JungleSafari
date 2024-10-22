@@ -102,30 +102,7 @@ namespace Jungle
                     {
                         OnAnimalReachingFood.Invoke(nearbyObject.gameObject);
                     }
-                }
-
-                //if (nearbyObject.gameObject != gameObject && nearbyObject.CompareTag(gameObject.tag)) // Ignore self and check tag
-                //{
-                //    if (nearbyObject.TryGetComponent<Animal>(out Animal nearAnimal))
-                //    {
-                //        if (nearAnimal.AnimalGender != AnimalGender && !IsMateFound)
-                //        {
-                //            if (lastMateId != nearAnimal.Id && nearAnimal.gameObject != null)
-                //            {
-                //                Debug.Log("Nearby object Clone: " + nearbyObject.name);
-                //                if (!IsMateFound && nextMatchInterval > Time.time && nearAnimal.nextMatchInterval > Time.time)
-                //                {
-                //                    lastMateId = nearAnimal.Id;
-                //                    StartCoroutine(FollowTime(nearbyObject.gameObject));
-                //                    IsMateFound = true;
-                //                }
-
-                //            }
-                //        }
-                //    }
-
-
-                //}
+                }               
 
                 if (nearbyObject.gameObject != gameObject && nearbyObject.CompareTag(gameObject.tag))
                 {

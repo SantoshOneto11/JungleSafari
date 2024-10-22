@@ -6,11 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Dashboard.unity
-    guid: 316212e677346514e9e4858cc7303aa3
-  - enabled: 1
-    path: Assets/Scenes/SpinWheel.unity
-    guid: b2e31beeb460aec4d9d3f5b1576a9fe5
+    path: Assets/Scenes/JungleSimulation.unity
+    guid: 2603b71f55bcfcf439735ffd70815266
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 68631394e79abe944bf74210c64a86e7,
       type: 2}
